@@ -111,17 +111,22 @@ namespace StaplePuck.Calculator
                                 Console.WriteLine($"Warning unable to find scoring value for position: {playerInfo.PositionType} and scoring type {si.ScoringTypeId} ");
                             }
                         }
-                        var scoringItem = new Data.CalculatedScoreItem
+                        Data.CalculatedScoreItem scoringItem = score.Scoring.FirstOrDefault(x => x.ScoringTypeId == si.ScoringTypeId);
+                        if (scoringItem == null)
                         {
-                            Total = si.Total,
-                            ScoringTypeId = si.ScoringTypeId,
-                            ScoreMultiplyer = multiplyer
-                        };
+                            scoringItem = new Data.CalculatedScoreItem
+                            {
+                                ScoringTypeId = si.ScoringTypeId,
+                                ScoreMultiplyer = multiplyer
+                            };
+                            score.Scoring.Add(scoringItem);
+                        }
+
+                        scoringItem.Total += si.Total;
                         if (todaysId == date.GameDate.Id)
                         {
                             scoringItem.TodaysTotal = si.Total;
                         }
-                        score.Scoring.Add(scoringItem);
                     }
                 }
             }

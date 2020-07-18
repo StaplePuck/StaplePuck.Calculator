@@ -10,10 +10,10 @@ namespace StaplePuck.Calculator
 
             var request = new LeagueRequest { LeagueId = 1 };
 
-            // init league
-            // set day state
-            // refresh stats
-            Updater.UpdateLeague(request);
+            //Updater.UpdateLeague(request);
+
+            var updater = Updater.Init();
+            updater.Update();
         }
     }
 }

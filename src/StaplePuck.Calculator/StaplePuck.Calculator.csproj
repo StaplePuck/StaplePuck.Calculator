@@ -7,10 +7,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="2.2.4" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\..\..\StaplePuck.API\src\StaplePuck.Core\StaplePuck.Core.csproj" />
+    <PackageReference Include="StaplePuck.Core" Version="1.0.12" />
   </ItemGroup>
 
 </Project>
