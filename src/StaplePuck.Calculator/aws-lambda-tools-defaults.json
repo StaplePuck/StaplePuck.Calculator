@@ -1,0 +1,15 @@
+
+{
+    "region" : "us-east-1",
+    "profile" : "sp",
+    "configuration" : "Release",
+    "framework"     : "netcoreapp3.1",
+    "function-name" : "leaguecalculator",
+    "function-handler" : "StaplePuck.Calculator::StaplePuck.Calculator.LambdaEntryPoint::HandleSQSEvent",
+    "function-memory-size" : 256,
+    "function-role"        : "arn:aws:iam::398055399259:role/lambda_exec_nhlstats",
+    "function-timeout"     : 45,
+    "function-runtime"     : "dotnetcore3.1",
+    "tracing-mode"         : "PassThrough",
+    "environment-variables" : "\"StaplePuck__Endpoint\"=\"https://7eu9897zob.execute-api.us-east-1.amazonaws.com/Prod/graphql\";\"Auth0__TokenUrl\"=\"https://staplepuck.auth0.com/oauth/token\";\"Auth0__Audience\"=\"auth.staplepuck.com\";\"Auth0__ClientSecret\"=\"fLnCXmRp3bjHp9CcdN401Qsyr6I_ERA3Mvc9Mf1C1NbYjBPi6pSSSd-6Vxy_wjS5\";\"Auth0__ClientIdHOLD\"=\"kz5UQ0CBTIHNLyAIIW6qyul3dvFj57DN\""
+}
