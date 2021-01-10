@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Dynamic;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 using StaplePuck.Core;
@@ -13,20 +14,9 @@ namespace StaplePuck.Calculator
     public class StatsProvider
     {
         private readonly IStaplePuckClient _staplePuckClient;
-        private const string LeagueStatsQuery = @"query my($leagueId: String) {
+        private const string LeagueStatsQuery = @"query my($leagueId: ID) {
   leagues (id: $leagueId) {
     id
-    fantasyTeams {
-      id
-      fantasyTeamPlayers {
-        playerId
-      }
-    }
-    scoringRules {
-      scoringTypeId
-      positionTypeId
-      pointsPerScore
-    }
     season {
       externalId
       gameDates {
@@ -41,6 +31,31 @@ namespace StaplePuck.Calculator
           }
         }
       }
+    }
+  }
+}";
+
+        private const string LeagueStatsInfoQuery = @"query my($leagueId: ID) {
+  leagues (id: $leagueId) {
+    id
+    fantasyTeams {
+      id
+      fantasyTeamPlayers {
+        playerId
+      }
+    }
+    scoringRules {
+      scoringTypeId
+      positionTypeId
+      pointsPerScore
+    }
+  }
+}";
+
+        private const string LeagueStatsSeasonsQuery = @"query my($leagueId: ID) {
+  leagues (id: $leagueId) {
+    id
+    season {
       playerSeasons {
         playerId
         positionTypeId
@@ -60,16 +75,22 @@ namespace StaplePuck.Calculator
             variables.Add("leagueId", leagueId.ToString());
 
             var result = await _staplePuckClient.GetAsync<League>(LeagueStatsQuery, variables);
-            
+            var result2 = await _staplePuckClient.GetAsync<League>(LeagueStatsInfoQuery, variables);
+            var resultSeason = await _staplePuckClient.GetAsync<League>(LeagueStatsSeasonsQuery, variables);
+
             if (result.Length == 0)
             {
                 return null;
             }
 
-            return result[0];
+            var league = result[0];
+            league.FantasyTeams = result2[0].FantasyTeams;
+            league.ScoringRules = result2[0].ScoringRules;
+            league.Season.PlayerSeasons = resultSeason[0].Season.PlayerSeasons;
+            return league;
         }
 
-        public async Task<IEnumerable<Data.CalculatedScore>> GeneratePlayerScores(League league)
+        public async Task<IEnumerable<Data.CalculatedScore>> GeneratePlayerScores(League league, bool init)
         {
             var todaysId = DateExtensions.TodaysDateId();
 
@@ -87,7 +108,7 @@ namespace StaplePuck.Calculator
                     var playerInfo = league.Season.PlayerSeasons.FirstOrDefault(x => x.PlayerId == player.PlayerId);
                     if (playerInfo == null)
                     {
-                        Console.WriteLine($"Warning unable to find player position for {player.Id}");
+                        Console.WriteLine($"Warning unable to find player position for {player.PlayerId}");
                         continue;
                     }
                     Data.CalculatedScore score;
@@ -130,6 +151,27 @@ namespace StaplePuck.Calculator
                     }
                 }
             }
+
+            if (init)
+            {
+                foreach (var player in league.Season.PlayerSeasons)
+                {
+                    Data.CalculatedScore score;
+                    if (!playerScores.TryGetValue(player.PlayerId, out score))
+                    {
+                        score = new Data.CalculatedScore
+                        {
+                            PlayerId = player.PlayerId,
+                            LeagueId = league.Id
+                        };
+                        playerScores.Add(player.PlayerId, score);
+                    }
+
+                    // calculate total count
+                    score.NumberOfSelectedByTeams = league.FantasyTeams.Count(x => x.FantasyTeamPlayers.Any(p => p.PlayerId == player.PlayerId));
+                }
+            }
+
 
             await Task.CompletedTask;
             return playerScores.Values;

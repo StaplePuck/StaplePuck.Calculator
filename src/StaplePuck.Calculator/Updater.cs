@@ -43,7 +43,7 @@ namespace StaplePuck.Calculator
             return serviceProvider.GetService<Updater>();
         }
 
-        public static void UpdateLeague(LeagueRequest request)
+        public static async Task UpdateLeague(LeagueRequest request)
         {
             var builder = new ConfigurationBuilder()
                 .AddEnvironmentVariables();
@@ -58,9 +58,9 @@ namespace StaplePuck.Calculator
 
             var provider = serviceProvider.GetService<StatsProvider>();
 
-            var league = provider.GetLeagueStats(request.LeagueId).Result;
-            var playerScores = provider.GeneratePlayerScores(league).Result;
-            var teamScores = provider.GenerateTeamScores(league, playerScores).Result;
+            var league = await provider.GetLeagueStats(request.LeagueId);
+            var playerScores = await provider.GeneratePlayerScores(league, request.Initialize);
+            var teamScores = await provider.GenerateTeamScores(league, playerScores);
 
             var leagueScore = new Data.LeagueScore
             {
@@ -69,7 +69,7 @@ namespace StaplePuck.Calculator
                 FantasyTeams = teamScores
             };
             var client = serviceProvider.GetService<IStaplePuckClient>();
-            var result = client.UpdateAsync("updateLeagueScores", leagueScore, "league").Result;
+            var result = await client.UpdateAsync("updateLeagueScores", leagueScore, "league");
             if (result == null)
             {
                 Console.Error.WriteLine("Null result");
@@ -91,7 +91,7 @@ namespace StaplePuck.Calculator
                 {
                     Console.Out.WriteLine($"Updating league {_settings.LeagueId}");
                     var league = _statsProvider.GetLeagueStats(_settings.LeagueId).Result;
-                    var playerScores = _statsProvider.GeneratePlayerScores(league).Result;
+                    var playerScores = _statsProvider.GeneratePlayerScores(league, false).Result;
                     var teamScores = _statsProvider.GenerateTeamScores(league, playerScores).Result;
 
                     var leagueScore = new Data.LeagueScore
