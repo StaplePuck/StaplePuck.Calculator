@@ -11,7 +11,7 @@
     <PackageReference Include="Amazon.Lambda.Serialization.SystemTextJson" Version="2.0.1" />
     <PackageReference Include="Amazon.Lambda.SQSEvents" Version="1.1.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="3.1.6" />
-    <PackageReference Include="StaplePuck.Core" Version="1.0.16" />
+    <PackageReference Include="StaplePuck.Core" Version="1.0.17" />
   </ItemGroup>
 
 </Project>

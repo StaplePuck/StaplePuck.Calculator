@@ -47,7 +47,7 @@ namespace StaplePuck.Calculator
     scoringRules {
       scoringTypeId
       positionTypeId
-      pointsPerScore
+      scoringWeight
     }
   }
 }";
@@ -94,11 +94,11 @@ namespace StaplePuck.Calculator
         {
             var todaysId = DateExtensions.TodaysDateId();
 
-            var multiplyers = new Dictionary<ScoreRuleKey, int>(new ScoreRuleKeyComparer());
+            var multiplyers = new Dictionary<ScoreRuleKey, float>(new ScoreRuleKeyComparer());
             foreach (var item in league.ScoringRules)
             {
                 var key = new ScoreRuleKey { TypeId = item.ScoringTypeId, PositionId = item.PositionTypeId };
-                multiplyers.Add(key, item.PointsPerScore);
+                multiplyers.Add(key, item.ScoringWeight);
             }
             var playerScores = new Dictionary<int, Data.CalculatedScore>();
             foreach (var date in league.Season.GameDates)
@@ -123,7 +123,7 @@ namespace StaplePuck.Calculator
                     }
                     foreach (var si in player.PlayerScores)
                     {
-                        int multiplyer = 0;
+                        float multiplyer = 0;
 
                         if (!multiplyers.TryGetValue(new ScoreRuleKey { PositionId = playerInfo.PositionTypeId, TypeId = si.ScoringTypeId }, out multiplyer))
                         {

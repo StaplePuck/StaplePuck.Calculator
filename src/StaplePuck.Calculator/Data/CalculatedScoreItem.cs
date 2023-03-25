@@ -14,18 +14,19 @@ namespace StaplePuck.Calculator.Data
         {
             get
             {
-                return Total * ScoreMultiplyer;
+                return Convert.ToInt32(Math.Floor(Total * ScoreMultiplyer));
             }
         }
+
         public int TodaysScore
         {
             get
             {
-                return TodaysTotal * ScoreMultiplyer;
+                return Convert.ToInt32(Math.Floor(TodaysTotal * ScoreMultiplyer));
             }
         }
 
         [JsonIgnore]
-        public int ScoreMultiplyer { get; set; }
+        public float ScoreMultiplyer { get; set; }
     }
 }
