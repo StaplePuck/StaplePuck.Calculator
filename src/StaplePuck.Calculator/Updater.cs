@@ -40,7 +40,7 @@ namespace StaplePuck.Calculator
                 .AddStaplePuckClient(configuration)
                 .BuildServiceProvider();
 
-            return serviceProvider.GetService<Updater>();
+            return serviceProvider.GetRequiredService<Updater>();
         }
 
         public static async Task UpdateLeague(LeagueRequest request)
@@ -56,9 +56,14 @@ namespace StaplePuck.Calculator
                 .AddStaplePuckClient(configuration)
                 .BuildServiceProvider();
 
-            var provider = serviceProvider.GetService<StatsProvider>();
+            var provider = serviceProvider.GetRequiredService<StatsProvider>();
 
             var league = await provider.GetLeagueStats(request.LeagueId);
+            if (league == null)
+            {
+                Console.Error.WriteLine("Failed to get league stats");
+                return;
+            }
             var playerScores = await provider.GeneratePlayerScores(league, request.Initialize);
             var teamScores = await provider.GenerateTeamScores(league, playerScores);
 
@@ -68,7 +73,7 @@ namespace StaplePuck.Calculator
                 PlayerCalculatedScores = playerScores,
                 FantasyTeams = teamScores
             };
-            var client = serviceProvider.GetService<IStaplePuckClient>();
+            var client = serviceProvider.GetRequiredService<IStaplePuckClient>();
             var result = await client.UpdateAsync("updateLeagueScores", leagueScore, "league");
             if (result == null)
             {
@@ -91,6 +96,11 @@ namespace StaplePuck.Calculator
                 {
                     Console.Out.WriteLine($"Updating league {_settings.LeagueId}");
                     var league = _statsProvider.GetLeagueStats(_settings.LeagueId).Result;
+                    if (league == null)
+                    {
+                        Console.Error.WriteLine("Failed to get league stats");
+                        return;
+                    }
                     var playerScores = _statsProvider.GeneratePlayerScores(league, false).Result;
                     var teamScores = _statsProvider.GenerateTeamScores(league, playerScores).Result;
 

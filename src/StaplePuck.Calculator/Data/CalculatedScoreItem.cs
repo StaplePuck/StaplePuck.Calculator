@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace StaplePuck.Calculator.Data
 {
@@ -27,6 +27,6 @@ namespace StaplePuck.Calculator.Data
         }
 
         [JsonIgnore]
-        public float ScoreMultiplyer { get; set; }
+        public double ScoreMultiplyer { get; set; }
     }
 }

@@ -69,24 +69,27 @@ namespace StaplePuck.Calculator
             _staplePuckClient = client;
         }
 
-        public async Task<League> GetLeagueStats(int leagueId)
+        public async Task<League?> GetLeagueStats(int leagueId)
         {
             var variables = new ExpandoObject() as IDictionary<string, object>;
-            variables.Add("leagueId", leagueId.ToString());
+            variables.Add("leagueId", leagueId);
 
-            var result = await _staplePuckClient.GetAsync<League>(LeagueStatsQuery, variables);
-            var result2 = await _staplePuckClient.GetAsync<League>(LeagueStatsInfoQuery, variables);
-            var resultSeason = await _staplePuckClient.GetAsync<League>(LeagueStatsSeasonsQuery, variables);
+            var result = await _staplePuckClient.GetAsync<LeagueResponse>(LeagueStatsQuery, variables);
+            var result2 = await _staplePuckClient.GetAsync<LeagueResponse>(LeagueStatsInfoQuery, variables);
+            var resultSeason = await _staplePuckClient.GetAsync<LeagueResponse>(LeagueStatsSeasonsQuery, variables);
 
-            if (result.Length == 0)
+            if (result.Leagues.Length == 0)
             {
                 return null;
             }
 
-            var league = result[0];
-            league.FantasyTeams = result2[0].FantasyTeams;
-            league.ScoringRules = result2[0].ScoringRules;
-            league.Season.PlayerSeasons = resultSeason[0].Season.PlayerSeasons;
+            var league = result.Leagues[0];
+            league.FantasyTeams = result2.Leagues[0].FantasyTeams;
+            league.ScoringRules = result2.Leagues[0].ScoringRules;
+            if (league.Season != null && resultSeason.Leagues[0]?.Season?.PlayerSeasons != null)
+            {
+                league.Season.PlayerSeasons = resultSeason.Leagues[0].Season!.PlayerSeasons;
+            }
             return league;
         }
 
@@ -94,15 +97,23 @@ namespace StaplePuck.Calculator
         {
             var todaysId = DateExtensions.TodaysDateId();
 
-            var multiplyers = new Dictionary<ScoreRuleKey, float>(new ScoreRuleKeyComparer());
+            var multiplyers = new Dictionary<ScoreRuleKey, double>(new ScoreRuleKeyComparer());
             foreach (var item in league.ScoringRules)
             {
                 var key = new ScoreRuleKey { TypeId = item.ScoringTypeId, PositionId = item.PositionTypeId };
                 multiplyers.Add(key, item.ScoringWeight);
             }
             var playerScores = new Dictionary<int, Data.CalculatedScore>();
+            if (league.Season == null)
+            {
+                return playerScores.Values;
+            }
             foreach (var date in league.Season.GameDates)
             {
+                if (date.GameDate == null)
+                {
+                    continue;
+                }
                 foreach (var player in date.GameDate.PlayersStatsOnDate)
                 {
                     var playerInfo = league.Season.PlayerSeasons.FirstOrDefault(x => x.PlayerId == player.PlayerId);
@@ -111,7 +122,7 @@ namespace StaplePuck.Calculator
                         Console.WriteLine($"Warning unable to find player position for {player.PlayerId}");
                         continue;
                     }
-                    Data.CalculatedScore score;
+                    Data.CalculatedScore? score;
                     if (!playerScores.TryGetValue(player.PlayerId, out score))
                     {
                         score = new Data.CalculatedScore
@@ -123,7 +134,7 @@ namespace StaplePuck.Calculator
                     }
                     foreach (var si in player.PlayerScores)
                     {
-                        float multiplyer = 0;
+                        double multiplyer = 0;
 
                         if (!multiplyers.TryGetValue(new ScoreRuleKey { PositionId = playerInfo.PositionTypeId, TypeId = si.ScoringTypeId }, out multiplyer))
                         {
@@ -132,7 +143,7 @@ namespace StaplePuck.Calculator
                                 Console.WriteLine($"Warning unable to find scoring value for position: {playerInfo.PositionType} and scoring type {si.ScoringTypeId} ");
                             }
                         }
-                        Data.CalculatedScoreItem scoringItem = score.Scoring.FirstOrDefault(x => x.ScoringTypeId == si.ScoringTypeId);
+                        Data.CalculatedScoreItem? scoringItem = score.Scoring.FirstOrDefault(x => x.ScoringTypeId == si.ScoringTypeId);
                         if (scoringItem == null)
                         {
                             scoringItem = new Data.CalculatedScoreItem
@@ -156,7 +167,7 @@ namespace StaplePuck.Calculator
             {
                 foreach (var player in league.Season.PlayerSeasons)
                 {
-                    Data.CalculatedScore score;
+                    Data.CalculatedScore? score;
                     if (!playerScores.TryGetValue(player.PlayerId, out score))
                     {
                         score = new Data.CalculatedScore
@@ -226,8 +237,12 @@ namespace StaplePuck.Calculator
 
         private class ScoreRuleKeyComparer : IEqualityComparer<ScoreRuleKey>
         { 
-            public bool Equals(ScoreRuleKey x, ScoreRuleKey y)
+            public bool Equals(ScoreRuleKey? x, ScoreRuleKey? y)
             {
+                if (x == null || y == null)
+                {
+                    return x == y;
+                }
                 return x.PositionId == y.PositionId && x.TypeId == y.TypeId;
             }
 
