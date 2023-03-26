@@ -8,7 +8,7 @@ namespace StaplePuck.Calculator
         {
             Console.WriteLine("Hello World!");
 
-            var request = new LeagueRequest { LeagueId = 5, Initialize = true };
+            var request = new LeagueRequest { LeagueId = 10, Initialize = false };
 
             Updater.UpdateLeague(request).Wait();
 

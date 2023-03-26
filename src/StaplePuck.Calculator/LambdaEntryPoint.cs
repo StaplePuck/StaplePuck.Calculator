@@ -35,6 +35,10 @@ namespace StaplePuck.Calculator
             try
             {
                 var request = JsonConvert.DeserializeObject<LeagueRequest>(message.Body);
+                if (request == null)
+                {
+                    throw new Exception($"Failed to parse request");
+                }
                 await ProcessRequest(request, context);
             }
             catch (Exception e)

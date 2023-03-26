@@ -16,7 +16,7 @@ namespace StaplePuck.Calculator.Data
         {
             get
             {
-                return Scoring.Sum(x => x.Score);
+                return Scoring.Sum(x => Convert.ToInt32(Math.Floor(x.Total * x.ScoreMultiplyer)));
             }
         }
         public int TodaysScore
