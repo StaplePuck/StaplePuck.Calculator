@@ -1,0 +1,66 @@
+{
+  "AWSTemplateFormatVersion" : "2010-09-09",
+  "Transform" : "AWS::Serverless-2016-10-31",
+  "Description" : "The serverless application for the StaplePuck Calculator Service",
+  "Parameters" : {
+    "Auth0Audience": {
+        "Type": "String"
+    },
+    "Auth0ClientId": {
+        "Type": "String"
+    },
+    "Auth0ClientSecret": {
+        "Type": "String"
+    },
+    "Auth0TokenUrl": {
+        "Type": "String"
+    },
+    "StaplePuckEndpoint": {
+        "Type": "String"
+    }
+  },
+  "Resources" : {
+    "CalculatorFunction" : {
+      "Type" : "AWS::Serverless::Function",
+      "Properties": {
+        "Handler": "StaplePuck.Calculator::StaplePuck.Calculator.LambdaEntryPoint::HandleSQSEvent",
+        "Runtime": "dotnet6",
+        "CodeUri": "",
+        "Description": "Calculator Service",
+        "MemorySize": 256,
+        "Timeout": 45,
+        "Role": null,
+        "Policies": [ "AWSLambda_FullAccess" ],
+        "Environment": {
+            "Variables": {
+                "Auth0__Audience": { "Ref" : "Auth0Audience" },
+                "Auth0__ClientIdHOLD": { "Ref" : "Auth0ClientId" },
+                "Auth0__ClientSecret": { "Ref" : "Auth0ClientSecret" },
+                "Auth0__TokenUrl": { "Ref" : "Auth0TokenUrl" },
+                "StaplePuck__Endpoint": { "Ref" : "StaplePuckEndpoint" }
+            }
+        },
+        "Events": {
+            "SQSEvent": {
+                "Type": "SQS",
+                "Properties": {
+                    "Queue": { "Fn::GetAtt": ["CalculatorQueue", "Arn"] }
+                }
+            }
+        }
+      }
+    },
+    "CalculatorQueue": {
+      "Type": "AWS::SQS::Queue",
+      "Properties": {
+          "VisibilityTimeout": 45
+      }
+    }
+  },
+  "Outputs" : {
+    "CalculatorQueueArn" : {
+        "Description" : "The SQS Queue that is connected to the Calculator Service",
+        "Value" : { "Fn::GetAtt": ["CalculatorQueue", "Arn"] }
+    }
+  }
+}

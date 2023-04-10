@@ -1,8 +1,0 @@
-version: '3.4'
-
-services:
-  staplepuck.calculator:
-    image: ${DOCKER_REGISTRY-}staplepuckcalculator
-    build:
-      context: .
-      dockerfile: src/StaplePuck.Calculator/Dockerfile
