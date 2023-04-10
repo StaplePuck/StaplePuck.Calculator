@@ -1,14 +1,8 @@
 
 {
     "region" : "us-east-1",
-    "profile" : "sp",
-    "configuration" : "Release",
-    "framework"     : "netcoreapp3.1",
-    "function-name" : "leaguecalculator",
-    "function-handler" : "StaplePuck.Calculator::StaplePuck.Calculator.LambdaEntryPoint::HandleSQSEvent",
-    "function-memory-size" : 256,
-    "function-role"        : "arn:aws:iam::398055399259:role/lambda_exec_nhlstats",
-    "function-timeout"     : 45,
-    "function-runtime"     : "dotnetcore3.1",
-    "tracing-mode"         : "PassThrough"
+    "profile" : "default",
+    "s3-bucket" : "staplepuckapi",
+    "template"  : "serverless.template",
+    "stack-name" : "staplepuck-calculator"
 }

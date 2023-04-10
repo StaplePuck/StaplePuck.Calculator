@@ -5,8 +5,6 @@ VisualStudioVersion = 17.5.33502.453
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StaplePuck.Calculator", "src\StaplePuck.Calculator\StaplePuck.Calculator.csproj", "{90AB6D88-B0A6-44A1-82BF-EFBA0C2E0DD7}"
 EndProject
-Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{0CD092AB-BE42-44B8-95CF-9F6F943F0C78}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -17,10 +15,6 @@ Global
 		{90AB6D88-B0A6-44A1-82BF-EFBA0C2E0DD7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{90AB6D88-B0A6-44A1-82BF-EFBA0C2E0DD7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{90AB6D88-B0A6-44A1-82BF-EFBA0C2E0DD7}.Release|Any CPU.Build.0 = Release|Any CPU
-		{0CD092AB-BE42-44B8-95CF-9F6F943F0C78}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0CD092AB-BE42-44B8-95CF-9F6F943F0C78}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0CD092AB-BE42-44B8-95CF-9F6F943F0C78}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0CD092AB-BE42-44B8-95CF-9F6F943F0C78}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
