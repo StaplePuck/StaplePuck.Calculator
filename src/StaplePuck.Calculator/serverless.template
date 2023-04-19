@@ -23,7 +23,7 @@
     "CalculatorFunction" : {
       "Type" : "AWS::Serverless::Function",
       "Properties": {
-        "Handler": "StaplePuck.Calculator::StaplePuck.Calculator.LambdaEntryPoint::HandleSQSEvent",
+        "Handler": "StaplePuck.Calculator::StaplePuck.Calculator.LambdaEntryPoint::HandleSNSEvent",
         "Runtime": "dotnet6",
         "CodeUri": "",
         "Description": "Calculator Service",
@@ -41,26 +41,25 @@
             }
         },
         "Events": {
-            "SQSEvent": {
-                "Type": "SQS",
+            "SNSTopic": {
+                "Type": "SNS",
                 "Properties": {
-                    "Queue": { "Fn::GetAtt": ["CalculatorQueue", "Arn"] }
+                    "Topic": { "Ref": "StatsUpdatedTopic" }
                 }
             }
         }
       }
     },
-    "CalculatorQueue": {
-      "Type": "AWS::SQS::Queue",
+    "StatsUpdatedTopic": {
+      "Type": "AWS::SNS::Topic",
       "Properties": {
-          "VisibilityTimeout": 45
       }
     }
   },
   "Outputs" : {
-    "CalculatorQueueArn" : {
-        "Description" : "The SQS Queue that is connected to the Calculator Service",
-        "Value" : { "Fn::GetAtt": ["CalculatorQueue", "Arn"] }
+    "StatsUpdatedTopicArn" : {
+        "Description" : "The SNS Topic that is connected to the Calculator Service",
+        "Value" : { "Ref": "StatsUpdatedTopic" }
     }
   }
 }
