@@ -21,7 +21,7 @@ namespace StaplePuck.Calculator
             await Updater.UpdateLeague(request);
         }
 
-        public async Task HandlerSNSEvent(SNSEvent evnt, ILambdaContext context)
+        public async Task HandleSNSEvent(SNSEvent evnt, ILambdaContext context)
         {
             foreach (var message in evnt.Records)
             {
