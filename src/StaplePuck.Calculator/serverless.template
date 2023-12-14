@@ -1,0 +1,65 @@
+{
+  "AWSTemplateFormatVersion" : "2010-09-09",
+  "Transform" : "AWS::Serverless-2016-10-31",
+  "Description" : "The serverless application for the StaplePuck Calculator Service",
+  "Parameters" : {
+    "Auth0Audience": {
+        "Type": "String"
+    },
+    "Auth0ClientId": {
+        "Type": "String"
+    },
+    "Auth0ClientSecret": {
+        "Type": "String"
+    },
+    "Auth0TokenUrl": {
+        "Type": "String"
+    },
+    "StaplePuckEndpoint": {
+        "Type": "String"
+    }
+  },
+  "Resources" : {
+    "CalculatorFunction" : {
+      "Type" : "AWS::Serverless::Function",
+      "Properties": {
+        "Handler": "StaplePuck.Calculator::StaplePuck.Calculator.LambdaEntryPoint::HandleSNSEvent",
+        "Runtime": "dotnet6",
+        "CodeUri": "",
+        "Description": "Calculator Service",
+        "MemorySize": 256,
+        "Timeout": 45,
+        "Role": null,
+        "Policies": [ "AWSLambda_FullAccess" ],
+        "Environment": {
+            "Variables": {
+                "Auth0__Audience": { "Ref" : "Auth0Audience" },
+                "Auth0__ClientIdHOLD": { "Ref" : "Auth0ClientId" },
+                "Auth0__ClientSecret": { "Ref" : "Auth0ClientSecret" },
+                "Auth0__TokenUrl": { "Ref" : "Auth0TokenUrl" },
+                "StaplePuck__Endpoint": { "Ref" : "StaplePuckEndpoint" }
+            }
+        },
+        "Events": {
+            "SNSTopic": {
+                "Type": "SNS",
+                "Properties": {
+                    "Topic": { "Ref": "StatsUpdatedTopic" }
+                }
+            }
+        }
+      }
+    },
+    "StatsUpdatedTopic": {
+      "Type": "AWS::SNS::Topic",
+      "Properties": {
+      }
+    }
+  },
+  "Outputs" : {
+    "StatsUpdatedTopicArn" : {
+        "Description" : "The SNS Topic that is connected to the Calculator Service",
+        "Value" : { "Ref": "StatsUpdatedTopic" }
+    }
+  }
+}
